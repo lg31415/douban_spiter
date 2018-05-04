@@ -17,8 +17,8 @@ import traceback
 from baidu_spider import search_baidu
 
 SEARCH_URL='http://www.soku.com/search_video/q_'
-SEARCH_URL_API='http://api.douban.com/v2/movie/search?q='
-PAGE_URL='https://movie.douban.com/subject/%s/'
+# SEARCH_URL_API='http://api.douban.com/v2/movie/search?q='
+# PAGE_URL='https://movie.douban.com/subject/%s/'
 class Movie(object):
     def __init__(self):
         self.id = ''
@@ -62,6 +62,11 @@ def search_youku(text):
     movie=Movie()
     # movie.imgurl=soup.find(attrs={'class':'poster-link'}).get('href')
     movie.text=text.encode('utf-8')
+    # print soup.text
+    try:
+        movie.title=soup.find(attrs={'class':'base_name'}).text
+    except:
+        movie.title=""
     try:
         movie.type=soup.find(attrs={'class':'base_type'}).text
     except:
@@ -88,7 +93,9 @@ def search_youku(text):
         movie.showid=""
     # print movie.imgurl
     # search_baidu(text)
-    return [movie.text,movie.type,movie.director,movie.actor,movie.area,movie.dec,movie.showid]+search_baidu(text)
+    # return [text,movie.text,movie.type,movie.director,movie.actor,movie.area,movie.dec,movie.showid]
+    return [movie.text,movie.title,movie.type]
+
 def get_movie_info(url):
     r = requests.get(url)
     soup = BeautifulSoup(r.text.encode('utf-8'), 'lxml')
@@ -101,8 +108,8 @@ def excel_insert(sheet,moviedata,row):
 if __name__=='__main__':
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet('table-sheet',cell_overwrite_ok=True)
-    excel_insert(sheet,["名称","类型","导演","演员","地区","描述","YouKuShowID"],0)
-    file = open("241")
+    excel_insert(sheet,["关键字","名称","类型"],0)
+    file = open("222")
     row=1
     for line in file:
         movie = search_youku(line)
@@ -111,5 +118,9 @@ if __name__=='__main__':
         else:
             excel_insert(sheet,[line],row)
         row=row+1
-        time.sleep(3)
-        workbook.save("42_youku.xls")
+        time.sleep(1)
+        workbook.save("222_youku.xls")
+
+
+# if __name__=='__main__':
+#     print search_youku("无间道")[1].decode('utf-8').encode()
